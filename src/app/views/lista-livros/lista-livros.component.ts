@@ -1,6 +1,7 @@
-import { Component, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs';
-import { Item, Livro } from 'src/app/models/interfaces';
+import { Component } from '@angular/core';
+import { FormControl } from '@angular/forms';
+import { debounceTime, distinctUntilChanged, filter, map, switchMap, tap } from 'rxjs';
+import { Item } from 'src/app/models/interfaces';
 import { LivroVolumeInfo } from 'src/app/models/livroVolumeInfo';
 import { LivroService } from 'src/app/service/livro.service';
 
@@ -9,28 +10,24 @@ import { LivroService } from 'src/app/service/livro.service';
   templateUrl: './lista-livros.component.html',
   styleUrls: ['./lista-livros.component.css'],
 })
-export class ListaLivrosComponent implements OnDestroy {
-
-  listaLivros: Livro[];
-  campoBusca: string = '';
-  subscription: Subscription;
-  livro: Livro;
+export class ListaLivrosComponent {
+  campoBusca = new FormControl();
 
   constructor(private service: LivroService) {}
 
-  buscarLivros() {
-    this.subscription = this.service.buscar(this.campoBusca).subscribe({
-      next: (items) => {
-        this.listaLivros = this.livrosResultadoParaLivros(items)
-      },
-      error: (erro) => console.error(erro),
-    });
-  }
+  livrosEncontrados$ = this.campoBusca.valueChanges.pipe(
+    debounceTime(300),
+    distinctUntilChanged(),
+    filter(valorDigitado => !!valorDigitado),
+    switchMap((valorDigitado) => this.service.buscar(valorDigitado)),
+    tap(() => console.log('Requisição ao servidor')),
+    map((items: Item[]) => this.livrosResultadoParaLivros(items))
+  );
 
   livrosResultadoParaLivros(items: Item[]): LivroVolumeInfo[] {
     return items.map(item => {
       return new LivroVolumeInfo(item);
-    })
+    });
     // const livros: Livro[] = [];
 
     // Em cada posição (item) do array items, cria um objeto livro propriamente dito (duck typed) e atribui ao livro desta classe (this.livro). Em seguida, insere o valor desse atributo no array livros por meio do método push. O array será retornado ao fim deste método.
@@ -47,9 +44,5 @@ export class ListaLivrosComponent implements OnDestroy {
     // });
 
     // return livros;
-  }
-
-  ngOnDestroy() {
-    this.subscription.unsubscribe();
   }
 }
