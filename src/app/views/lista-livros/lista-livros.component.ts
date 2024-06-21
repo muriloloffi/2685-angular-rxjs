@@ -1,13 +1,11 @@
 import { Component } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import {
-  EMPTY,
   catchError,
   debounceTime,
   distinctUntilChanged,
   filter,
   map,
-  of,
   switchMap,
   tap,
   throwError,
@@ -30,20 +28,7 @@ export class ListaLivrosComponent {
 
   constructor(private service: LivroService) {}
 
-  totalDeLivros$ = this.campoBusca.valueChanges.pipe(
-    debounceTime(PAUSA),
-    filter((valorDigitado) => valorDigitado.length >= 3),
-    distinctUntilChanged(),
-    switchMap((valorDigitado) => this.service.buscar(valorDigitado)),
-    map(resultado => this.livrosResultado = resultado),
-    catchError(erro => {
-      console.log(erro);
-      return of()
-    })
-  )
-
   livrosEncontrados$ = this.campoBusca.valueChanges.pipe(
-
     //a ordem dos operadores abaixo é importante
     //delays the execution of the pipe method
     debounceTime(PAUSA),
@@ -57,18 +42,23 @@ export class ListaLivrosComponent {
     //atualiza a saída, mas interrompe a requisição se o valor de query muda
     switchMap((valorDigitado) => this.service.buscar(valorDigitado)),
 
+    map((resultado) => (this.livrosResultado = resultado)),
     //debug message
     tap(() => console.log('Requisição ao servidor')),
-    map(resultado => resultado.items ?? []),
+    map((resultado) => resultado.items ?? []),
 
     //atualiza a saída com base no callback provido
     map((items: Item[]) => this.livrosResultadoParaLivros(items)),
-    
+
     catchError((erro) => {
-      // this.mensagemErro = 'Ops, ocorreu um erro. Recarregue a aplicação.';
-      // return EMPTY;
       console.log(erro);
-      return throwError(() => new Error(this.mensagemErro = "Ops, ocorreu um erro. Recarregue a aplicação!"))
+      return throwError(
+        () =>
+          new Error(
+            (this.mensagemErro =
+              'Ops, ocorreu um erro. Recarregue a aplicação!')
+          )
+      );
     })
   );
 
