@@ -18,7 +18,7 @@ export class ListaLivrosComponent {
   livrosEncontrados$ = this.campoBusca.valueChanges.pipe(
     debounceTime(300),
     distinctUntilChanged(),
-    filter(valorDigitado => !!valorDigitado),
+    filter(valorDigitado => valorDigitado.length >= 3),
     switchMap((valorDigitado) => this.service.buscar(valorDigitado)),
     tap(() => console.log('Requisição ao servidor')),
     map((items: Item[]) => this.livrosResultadoParaLivros(items))
