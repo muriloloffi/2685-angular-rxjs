@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import {
+  EMPTY,
+  catchError,
   debounceTime,
   distinctUntilChanged,
   filter,
@@ -21,6 +23,7 @@ const PAUSA = 300;
 })
 export class ListaLivrosComponent {
   campoBusca = new FormControl();
+  mensagemErro = '';
 
   constructor(private service: LivroService) {}
 
@@ -37,7 +40,11 @@ export class ListaLivrosComponent {
     //debug message
     tap(() => console.log('Requisição ao servidor')),
     //atualiza a saída com base no callback provido
-    map((items: Item[]) => this.livrosResultadoParaLivros(items))
+    map((items: Item[]) => this.livrosResultadoParaLivros(items)),
+    catchError(erro => {
+      this.mensagemErro = 'Ops, ocorreu um erro. Recarregue a aplicação.';
+      return EMPTY;
+    })
   );
 
   livrosResultadoParaLivros(items: Item[]): LivroVolumeInfo[] {

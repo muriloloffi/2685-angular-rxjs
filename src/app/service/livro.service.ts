@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, catchError, map, of } from 'rxjs';
+import { Observable, catchError, map, of, throwError } from 'rxjs';
 import { Item, LivrosResultado } from '../models/interfaces';
 
 @Injectable({
@@ -19,7 +19,8 @@ export class LivroService {
         map(resultado => resultado.items),
         catchError(error => {
           console.error('Erro na busca: ', error);
-          return of([]);
+          // return of([]);
+          return throwError(() => new Error('Ops, ocorreu um erro'))
         })
       )
     } else {
