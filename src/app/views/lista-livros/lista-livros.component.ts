@@ -25,24 +25,9 @@ export class ListaLivrosComponent {
   );
 
   livrosResultadoParaLivros(items: Item[]): LivroVolumeInfo[] {
+    // Retorna um novo array a partir do array de items. A partir de cada item do array original, cria uma nova instância de livroVolumeInfo. Isto é uma versão mais elegante da solução anterior que criava um objeto do tipo Livro e atribuía a uma propriedade desta classe (classe ListaLivrosComponent), que era em seguida inserida num array de livros por meio do método push (verificar esta versão antiga no histórico do git).
     return items.map(item => {
       return new LivroVolumeInfo(item);
     });
-    // const livros: Livro[] = [];
-
-    // Em cada posição (item) do array items, cria um objeto livro propriamente dito (duck typed) e atribui ao livro desta classe (this.livro). Em seguida, insere o valor desse atributo no array livros por meio do método push. O array será retornado ao fim deste método.
-    // items.forEach(item => {
-    //   livros.push(this.livro = {
-    //     title: item.volumeInfo?.title,
-    //     authors: item.volumeInfo?.authors,
-    //     publisher: item.volumeInfo?.publisher,
-    //     publishedDate: item.volumeInfo?.publishedDate,
-    //     description: item.volumeInfo?.description,
-    //     previewLink: item.volumeInfo?.previewLink,
-    //     thumbnail: item.volumeInfo?.imageLinks?.thumbnail
-    //   })
-    // });
-
-    // return livros;
   }
 }
