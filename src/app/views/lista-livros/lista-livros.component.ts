@@ -25,14 +25,18 @@ export class ListaLivrosComponent {
   constructor(private service: LivroService) {}
 
   livrosEncontrados$ = this.campoBusca.valueChanges.pipe(
+    //a ordem dos operadores abaixo é importante
     //delays the execution of the pipe method
     debounceTime(PAUSA),
     //stops if the search term is smaller than 3
     filter((valorDigitado) => valorDigitado.length >= 3),
     //doesn't send a new request to api if the search query is the same
     distinctUntilChanged(),
+    //atualiza a saída, mas interrompe a requisição se o valor de query muda
     switchMap((valorDigitado) => this.service.buscar(valorDigitado)),
+    //debug message
     tap(() => console.log('Requisição ao servidor')),
+    //atualiza a saída com base no callback provido
     map((items: Item[]) => this.livrosResultadoParaLivros(items))
   );
 
