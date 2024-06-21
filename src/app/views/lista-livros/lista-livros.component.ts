@@ -27,8 +27,10 @@ export class ListaLivrosComponent {
   livrosEncontrados$ = this.campoBusca.valueChanges.pipe(
     //delays the execution of the pipe method
     debounceTime(PAUSA),
-    distinctUntilChanged(),
+    //stops if the search term is smaller than 3
     filter((valorDigitado) => valorDigitado.length >= 3),
+    //doesn't send a new request to api if the search query is the same
+    distinctUntilChanged(),
     switchMap((valorDigitado) => this.service.buscar(valorDigitado)),
     tap(() => console.log('Requisição ao servidor')),
     map((items: Item[]) => this.livrosResultadoParaLivros(items))
